@@ -55,20 +55,30 @@ class block_quizsummary extends block_base {
         
         $quiz_attempts = $DB->get_records('quiz_attempts', ['userid' => $USER->id]);
 
-        $quizes_map = array_reduce($quiz_attempts, function($carry, $attempt) {
+        $courses_map = array_reduce($quiz_attempts, function($carry, $attempt) {
             global $DB;
-            if(!$carry[$attempt->quiz]) {
-                $carry[$attempt->quiz] = $DB->get_record('quiz', ['id' => $attempt->quiz]);
-                $carry[$attempt->quiz]->course = $DB->get_record('course', ['id' => $carry[$attempt->quiz]->course]);
+            $quiz_id = $attempt->quiz;
+            $quiz = $DB->get_record('quiz', ['id' => $quiz_id]);
+            $course_id = $quiz->course;
+            $quiz_index = 0;
+            if(!$carry[$course_id]) {
+                $carry[$course_id] = $DB->get_record('course', ['id' => $course_id]);
+            }
+            if(!$carry[$course_id]->quizes) {
+                $carry[$course_id]->quizes = [$quiz];
+
+            } else {
+                array_push($carry[$course_id]->quizes, $quiz);
+                $quiz_index = count($carry[$course_id]->quizes) - 1;
             }
 
             $time_finish = new DateTime(gmdate("Y-m-d\TH:i:s\Z", $attempt->timefinish));
             $attempt->spent_time = $time_finish->diff(new DateTime(gmdate("Y-m-d\TH:i:s\Z", $attempt->timestart)))->format("%H:%I:%S");
 
-            if(!$carry[$attempt->quiz]->attempts_done) {
-                $carry[$attempt->quiz]->attempts_done = [$attempt];
+            if(!$carry[$course_id]->quizes[$quiz_index]->attempts_done) {
+                $carry[$course_id]->quizes[$quiz_index]->attempts_done = [$attempt];
             } else {
-                array_push($carry[$attempt->quiz]->attempts_done, $attempt);
+                array_push($carry[$course_id]->quizes[$quiz_index]->attempts_done, $attempt);
             }
 
             return $carry;
@@ -76,7 +86,7 @@ class block_quizsummary extends block_base {
 
 
         // Add logic here to define your template data or any other content.
-        $data = ["quizes" => array_values($quizes_map)];
+        $data = ["courses" => array_values($courses_map)];
 
         $this->content->text = $OUTPUT->render_from_template('block_quizsummary/content', $data);
 
