@@ -1,0 +1,40 @@
+name: Quize Summary
+component: block_quiz_summary
+release: "0.1.0"
+requires: "4.5"
+maturity: MATURITY_ALPHA
+copyright: 2025 Chipiga Aleksey 
+
+features:
+  readme: true
+  license: true
+
+privacy:
+  haspersonaldata: false
+
+block_features:
+  edit_form: false
+
+  ## Allows multiple instances of the block on the same course.
+  instance_allow_multiple: false
+
+  ## Choose where to display the block.
+  applicable_formats:
+    - page: my
+      allowed: true
+
+## Mustache templates.
+templates:
+  - quiz_summary
+
+capabilities:
+  - name: view
+    title: View test
+    captype: view
+    contextlevel: CONTEXT_MODULE
+    archetypes:
+      - role: student
+        permission: CAP_ALLOW
+      - role: editingteacher
+        permission: CAP_ALLOW
+    clonepermissionsfrom: moodle/course:view

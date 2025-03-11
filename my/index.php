@@ -185,7 +185,6 @@ if (core_userfeedback::should_display_reminder()) {
 echo $OUTPUT->addblockbutton('content');
 
 echo $OUTPUT->custom_block_region('content');
-
 echo $OUTPUT->footer();
 
 // Trigger dashboard has been viewed event.

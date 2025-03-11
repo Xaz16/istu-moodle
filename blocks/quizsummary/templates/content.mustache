@@ -1,0 +1,13 @@
+{{#quizes}}
+    <h3>{{course.fullname}}</h4>
+    <h4>{{name}}</h3>
+
+    {{#attempts_done}}
+    <h6>Попытка №{{attempt}}</h6>
+    <ul>
+        <li>Оценка: {{sumgrades}}</li>
+        <li>Затраченное время: {{spent_time}}</li>
+    </ul>
+    {{/attempts_done}}
+    
+{{/quizes}}
