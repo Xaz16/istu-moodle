@@ -117,17 +117,20 @@ function print_nav_menu() {
             '<span id="tm_tab_enrols_header_ainfo" style="color: red;"></span>'.
         '</a>
     </li>';
-    
-    print '<li class="nav-item" style="cursor: pointer;">
-        <a class="nav-link" href="/blocks/bacs_attendance_list/index.php">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16">
-                <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
-                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-            </svg>
-            Журнал посещаемости' .
-        '</a>
-    </li>';
+    if(file_exists('../bacs_attendance_list/index.php')) {
+        print '<li class="nav-item" style="cursor: pointer;">
+            <a class="nav-link" href="/blocks/bacs_attendance_list/index.php">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16">
+                    <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+                Журнал посещаемости' .
+            '</a>
+        </li>';
 
+    }
+
+    if(file_exists('../../multistandings.php?tab=settings')) {
     print '<li class="nav-item" style="cursor: pointer;">
         <a class="nav-link" href="/multistandings.php?tab=settings">
             <svg class="bi bi-flag-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -137,7 +140,7 @@ function print_nav_menu() {
             Составной монитор' .
         '</a>
     </li>';
-
+    }
     print '</ul>';
 }
 
@@ -154,7 +157,7 @@ function print_students_activity() {
     $string_from = date("Y-m-d", $timestamp_from);
     $string_to = date("Y-m-d", $timestamp_to);
 
-    print "<form action='/teacher_monitor.php' method='get' style='text-align: center; margin-bottom: 15px;'>
+    print "<form action='/blocks/teachercontrol/teacher_monitor.php' method='get' style='text-align: center; margin-bottom: 15px;'>
         <b>От</b>
         <input type='date' name='from' value='$string_from'>
         <b>До</b>
@@ -281,9 +284,16 @@ function print_students_activity() {
 function print_pending_enrols() {
     global $USER, $DB, $pending_enrols_number;
 
+    try {
+        $enrolData = $DB->get_records('enrol_apply_applicationinfo');
+    } catch(dml_exception $e) {
+        $enrolData = [];
+    }
+
+
     $userenrolmentids = array_map(
         function($x){return $x->userenrolmentid;},
-        $DB->get_records('enrol_apply_applicationinfo')
+        $enrolData
     );
     $userenrolmentids[] = -1; // empty mysql set case
     $userenrolmentids_string = '('. implode(',', $userenrolmentids) . ')';
@@ -351,16 +361,16 @@ function print_pending_enrols() {
     print '</tbody></table>';
 }
 
-require_once(dirname(__FILE__).'/config.php');
-require_once(dirname(__FILE__).'/mod/bacs/utils.php');
-require_once(dirname(__FILE__).'/mod/bacs/submit_verdicts.php');
+require_once(dirname(__FILE__).'/../../config.php');
+require_once(dirname(__FILE__).'/../../mod/bacs/utils.php');
+require_once(dirname(__FILE__).'/../../mod/bacs/submit_verdicts.php');
 
-require_login();
 
 /// Print the page header
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url('/blocks/teachercontrol/teacher_monitor.php', array());
 
-$PAGE->set_url('/teacher_monitor.php', array());
-
+require_login();
 $PAGE->set_title('Монитор учителя');
 $PAGE->set_heading('Монитор учителя');
 
