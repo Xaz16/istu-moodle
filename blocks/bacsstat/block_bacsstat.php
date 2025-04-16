@@ -37,7 +37,7 @@ class block_bacsstat extends block_base {
      * @return stdClass The block contents.
      */
     public function get_content() {
-
+        global $OUTPUT, $DB, $USER;
         if ($this->content !== null) {
             return $this->content;
         }
@@ -48,20 +48,40 @@ class block_bacsstat extends block_base {
         }
 
         $this->content = new stdClass();
-        $this->content->items = array();
-        $this->content->icons = array();
         $this->content->footer = '';
+        
 
-        if (!empty($this->config->text)) {
-            $this->content->text = $this->config->text;
-        } else {
-            $text = 'Please define the content text in /blocks/bacsstat/block_bacsstat.php.';
-            $this->content->text = $text;
-        }
+        
+        $bacs_contests = $DB->get_records('bacs', [], null, 'id,name,course');
+
+        $bacs_stats = array_reduce($bacs_contests, function($carry, $contest) {
+            global $DB, $USER;
+
+            $course = isset($carry[$contest->course]) ? $carry[$contest->course] : $DB->get_record('course', ['id' => $contest->course], 'id,fullname');
+            $submits = $DB->get_records('bacs_submits', ['user_id' => $USER->id, 'contest_id'=> $contest->id], null, 'id,points');
+            $contest->complete_count = count(array_filter($submits, function($item) {
+                return $item->points == '100';
+            }));
+            $contest->total_tasks = $DB->count_records('bacs_tasks_to_contests', ['contest_id' => $contest->id]);
+            $contest->complete_percents = round($contest->complete_count == 0 ? 0 : 100 / ($contest->total_tasks / $contest->complete_count), 2);
+            if(isset($course->contests)) {
+                array_push($course->contests, $contest); 
+            } else {
+                $course->contests = [$contest];
+            }
+            $carry[$course->id] = $course;
+
+            return $carry;
+        }, []);
+
+        // Add logic here to define your template data or any other content.
+        $data = ['bacs_stats' => array_values($bacs_stats)];
+
+        $this->content->text = $OUTPUT->render_from_template('block_bacsstat/content', $data);
+
 
         return $this->content;
     }
-
     /**
      * Defines configuration data.
      *
@@ -84,6 +104,7 @@ class block_bacsstat extends block_base {
      */
     public function applicable_formats() {
         return array(
+            'my' => true
         );
     }
 }
