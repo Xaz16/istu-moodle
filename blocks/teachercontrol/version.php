@@ -31,5 +31,6 @@ $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
     'mod_bacs' => 2025013000,
-    'enrol_apply' => 2023101100
+    'enrol_apply' => 2023101100,
+    'block_bacs_attendance_list' => 2021101400,
 ];
