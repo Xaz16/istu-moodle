@@ -393,10 +393,10 @@ function print_pending_enrols() {
 
 function print_plugin($plugin_name, $plugin_fn) {
     $pluginmanager = \core_plugin_manager::instance();
-    $parsed_plugin_name = explode("_", $plugin_name);
-
-    $plugins_by_type = $pluginmanager->get_present_plugins($parsed_plugin_name[0]);
-    $is_available = isset($plugins_by_type[$parsed_plugin_name[1]]);
+    $parsed_plugin_name_str = explode("_", $plugin_name);
+    $name = implode("_", array_slice($parsed_plugin_name_str, 1));
+    $plugins_by_type = $pluginmanager->get_present_plugins($parsed_plugin_name_str[0]);
+    $is_available = isset($plugins_by_type[$name]);
 
     if($is_available) {
         $plugin_fn();
