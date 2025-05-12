@@ -76,7 +76,10 @@ function print_nav_menu() {
             var activity_header = document.getElementById("tm_tab_activity_header");
             var enrols_content = document.getElementById("tm_tab_enrols_content");
             var enrols_header = document.getElementById("tm_tab_enrols_header");
+            var attendance_content = document.getElementById("tm_tab_attendance_content");
+            var attendance_header = document.getElementById("tm_tab_attendance_header");
 
+            
             if (tab_name == "activity") {
                 activity_header.classList.add("active");
                 activity_content.style.display = "block";
@@ -92,6 +95,14 @@ function print_nav_menu() {
                 enrols_header.classList.remove("active");
                 enrols_content.style.display = "none";
             }
+
+            if (tab_name == "attendance") {
+                attendance_header.classList.add("active");
+                attendance_content.style.display = "block";
+            } else {
+                attendance_header.classList.remove("active");
+                attendance_content.style.display = "none";
+            }
         }
         </script>';
 
@@ -99,6 +110,7 @@ function print_nav_menu() {
 
     $activity_string = "'activity'";
     $enrols_string = "'enrols'";
+    $attendance_string = "'attendance'";
 
     print '<li class="nav-item" style="cursor: pointer;"
         onclick="teacher_monitor_open_tab('.$activity_string.')">
@@ -137,6 +149,17 @@ function print_nav_menu() {
             '</a>
         </li>';
 
+    } else {
+        print '<li class="nav-item" style="cursor: pointer;"
+        onclick="teacher_monitor_open_tab('.$attendance_string.')">
+        <a id="tm_tab_attendance_header" class="nav-link"> 
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16">
+                <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+            </svg>
+            Журнал посещаемости
+        </a>
+        </li>';
     }
 
     print '<li class="nav-item" style="cursor: pointer;">
@@ -368,6 +391,22 @@ function print_pending_enrols() {
     print '</tbody></table>';
 }
 
+function print_plugin($plugin_name, $plugin_fn) {
+    $pluginmanager = \core_plugin_manager::instance();
+    $parsed_plugin_name = explode("_", $plugin_name);
+
+    $plugins_by_type = $pluginmanager->get_present_plugins($parsed_plugin_name[0]);
+    $is_available = isset($plugins_by_type[$parsed_plugin_name[1]]);
+
+    if($is_available) {
+        $plugin_fn();
+    } else {
+        print "<div style=\"padding-left:30px;padding-top: 30px;margin-bottom: 30px\">";
+        print "<h1>" . $plugin_name . " " . get_string("no_plugin_installed", "block_teachercontrol") . "</h1>";
+        print "<p>" . get_string("install_plugin_description", "block_teachercontrol") . "</p>";
+        print "</div>";
+    }
+}
 
 
 
@@ -398,11 +437,18 @@ if ($menu_tab != 'enrols') {
 print_nav_menu();
 
 print '<div id="tm_tab_activity_content">';
-print_students_activity();
+print_plugin('mod_bacs', function() {print_students_activity();});
 print '</div>';
 
 print '<div id="tm_tab_enrols_content">';
-print_pending_enrols();
+$pending_enrols_number = 0;
+print_plugin('enrol_apply', function() {print_pending_enrols();});
+
+print '</div>';
+
+print '<div id="tm_tab_attendance_content">';
+print_plugin('block_bacs_attendance_list', function() {});
+
 print '</div>';
 
 print '<script type="text/javascript">

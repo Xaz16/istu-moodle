@@ -26,3 +26,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Teacher Control';
+$string['no_plugin_installed'] = 'plugin is not installed';
+$string['install_plugin_description'] = 'Install that plugin if you want to see its functionality';
