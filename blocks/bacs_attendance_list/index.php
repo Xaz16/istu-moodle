@@ -32,7 +32,7 @@ if (is_admin()) {
     $my_courses = my_courses_full_info();
 }
 
-print "<p><a href='/teacher_monitor.php'><button class='btn btn-info'>Назад к монитору учителя</button></a></p>";
+print "<p><a href='/blocks/teachercontrol/teacher_monitor.php'><button class='btn btn-info'>Назад к монитору учителя</button></a></p>";
 
 
 //<script>document.getElementById('textbox').focus()</script><br />
