@@ -58,7 +58,9 @@
 
                     {{^is_multi_statements}}
                         {{#statement_format_is_html}}
-                            <a href="{{statement_url}}" target="_blank">{{#str}} open, mod_bacs {{/str}}</a>
+                            {{#statement_url}}
+                                <a href="{{statement_url}}" target="_blank">{{#str}} open, mod_bacs {{/str}}</a>
+                            {{/statement_url}}
                         {{/statement_format_is_html}}
                         
                         {{^statement_format_is_html}}

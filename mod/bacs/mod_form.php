@@ -377,7 +377,7 @@ class mod_bacs_mod_form extends moodleform_mod {
                     count_tests:         "' . $curtask->count_tests . '",
                     count_pretests:      "' . $curtask->count_pretests . '",
                     statement_url:       "' . $curtask->statement_url . '",
-                    statement_urls:       "' . $curtask->statement_urls . '",
+                    statement_urls:       JSON.parse(\'' . $curtask->statement_urls . '\'),
                 };';
         }
         return $globaltasksinfoscript;
