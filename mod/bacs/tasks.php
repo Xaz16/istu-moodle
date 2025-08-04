@@ -28,54 +28,9 @@ use mod_bacs\output\tasklist;
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(__FILE__) . '/lib.php');
 require_once(dirname(__FILE__) . '/utils.php');
+require_once(dirname(__FILE__) . '/locale_utils.php');
 
 require_login();
-
-/**
- * Фильтрует многоязычные данные по предпочитаемым языкам
- * 
- * @param array $data Многоязычные данные в формате ['lang' => 'value']
- * @param array $preferedlanguages Массив предпочитаемых языков
- * @param string $valueKey Ключ для значения в результирующем массиве ('url' или 'name')
- * @return array Отфильтрованные данные в формате [['lang' => 'lang', $valueKey => 'value']]
- */
-function filter_multilingual_data($data, $preferedlanguages, $valueKey) {
-    if (empty($data)) {
-        return [];
-    }
-    
-    // Фильтруем по предпочитаемым языкам
-    $filtered_data = array_intersect_key($data, array_flip($preferedlanguages));
-    
-    if (!empty($filtered_data)) {
-        // Если есть совпадения с предпочитаемыми языками, используем только их
-        return array_map(function($lang, $value) use ($valueKey) {
-            return ['lang' => strtoupper($lang), $valueKey => $value];
-        }, array_keys($filtered_data), array_values($filtered_data));
-    } else {
-        // Если нет совпадений, используем все доступные
-        return array_map(function($lang, $value) use ($valueKey) {
-            return ['lang' => strtoupper($lang), $valueKey => $value];
-        }, array_keys($data), array_values($data));
-    }
-}
-
-/**
- * Находит значение по языку в массиве ассоциативных массивов
- * 
- * @param array $data Массив ассоциативных массивов с ключами 'lang' и 'valueKey'
- * @param string $lang Искомый язык
- * @param string $valueKey Ключ для значения ('url' или 'name')
- * @return mixed|null Найденное значение или null
- */
-function find_value_by_lang($data, $lang, $valueKey) {
-    foreach ($data as $item) {
-        if ($item['lang'] === strtoupper($lang)) {
-            return $item[$valueKey];
-        }
-    }
-    return null;
-}
 
 $contest = new contest();
 $contest->pageisallowedforisolatedparticipantbacs = true;
@@ -120,18 +75,18 @@ foreach ($contest->tasks as $task) {
         $tasklisttask->is_multi_statements = empty($tasklisttask->statement_urls) ? false : count($tasklisttask->statement_urls) > 0;
         
         if($tasklisttask->is_multi_statements) {
-            $tasklisttask->statement_urls = filter_multilingual_data($tasklisttask->statement_urls, $preferedlanguages, 'url');
+            $tasklisttask->statement_urls = bacs_filter_multilingual_data($tasklisttask->statement_urls, $preferedlanguages, 'url');
 
             if(count($preferedlanguages) == 1) {
                 // Ищем URL по приоритету: предпочитаемый язык -> C -> RU -> первый доступный
-                $preferred_url = find_value_by_lang($tasklisttask->statement_urls, $preferedlanguages[0], 'url');
+                $preferred_url = bacs_find_value_by_lang($tasklisttask->statement_urls, $preferedlanguages[0], 'url');
                 
                 if ($preferred_url === null) {
-                    $preferred_url = find_value_by_lang($tasklisttask->statement_urls, 'C', 'url');
+                    $preferred_url = bacs_find_value_by_lang($tasklisttask->statement_urls, 'C', 'url');
                 }
                 
                 if ($preferred_url === null) {
-                    $preferred_url = find_value_by_lang($tasklisttask->statement_urls, 'RU', 'url');
+                    $preferred_url = bacs_find_value_by_lang($tasklisttask->statement_urls, 'RU', 'url');
                 }
                 
                 // Если ничего не найдено, берем первый доступный
@@ -148,7 +103,7 @@ foreach ($contest->tasks as $task) {
         $tasklisttask->names = json_decode($task->names, true);
         $tasklisttask->is_multi_names = empty($tasklisttask->names) ? 0 : count($tasklisttask->names) > 0;
         if($tasklisttask->is_multi_names) {
-            $tasklisttask->names = filter_multilingual_data($tasklisttask->names, [$currentlang], 'name');
+            $tasklisttask->names = bacs_filter_multilingual_data($tasklisttask->names, [$currentlang], 'name');
         }
     }
 
