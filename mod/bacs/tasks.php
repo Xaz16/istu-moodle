@@ -28,6 +28,7 @@ use mod_bacs\output\tasklist;
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(__FILE__) . '/lib.php');
 require_once(dirname(__FILE__) . '/utils.php');
+require_once(dirname(__FILE__) . '/locale_utils.php');
 
 require_login();
 
@@ -57,7 +58,56 @@ $tasklist->showpointsbacs       = $contest->get_show_points();
 foreach ($contest->tasks as $task) {
     $tasklisttask = new stdClass();
 
-    $tasklisttask->statement_url    = $task->statement_url;
+    // Получаем предпочитаемые языки из настроек модуля
+    $preferedlanguages = explode(',', get_config('mod_bacs', 'preferedlanguages'));
+    $preferedlanguages = array_filter($preferedlanguages); // Убираем пустые значения
+    // Получаем текущий язык интерфейса Moodle
+    $currentlang = current_language();
+    
+    $tasklisttask->statement_url = $task->statement_url;
+
+    if(!isset($task->statement_urls) || $task->statement_urls == "null") {
+        $task->statement_urls = json_encode(["ru" => $task->statement_url]);
+    }
+
+    if(isset($task->statement_urls)) {
+        $tasklisttask->statement_urls = json_decode($task->statement_urls, true);
+        $tasklisttask->is_multi_statements = empty($tasklisttask->statement_urls) ? false : count($tasklisttask->statement_urls) > 0;
+        
+        if($tasklisttask->is_multi_statements) {
+            $tasklisttask->statement_urls = bacs_filter_multilingual_data($tasklisttask->statement_urls, $preferedlanguages, 'url');
+
+            if(count($preferedlanguages) == 1) {
+                // Ищем URL по приоритету: предпочитаемый язык -> C -> RU -> первый доступный
+                $preferred_url = bacs_find_value_by_lang($tasklisttask->statement_urls, $preferedlanguages[0], 'url');
+                
+                if ($preferred_url === null) {
+                    $preferred_url = bacs_find_value_by_lang($tasklisttask->statement_urls, 'C', 'url');
+                }
+                
+                if ($preferred_url === null) {
+                    $preferred_url = bacs_find_value_by_lang($tasklisttask->statement_urls, 'RU', 'url');
+                }
+                
+                // Если ничего не найдено, берем первый доступный
+                if ($preferred_url === null && !empty($tasklisttask->statement_urls)) {
+                    $preferred_url = $tasklisttask->statement_urls[0]['url'];
+                }
+                $tasklisttask->is_multi_statements = false;
+                $tasklisttask->statement_url = $preferred_url;
+            }
+        }
+    }
+
+    if(isset($task->names)) {
+        $tasklisttask->names = json_decode($task->names, true);
+        $tasklisttask->is_multi_names = empty($tasklisttask->names) ? 0 : count($tasklisttask->names) > 0;
+        if($tasklisttask->is_multi_names) {
+            $tasklisttask->names = bacs_filter_multilingual_data($tasklisttask->names, [$currentlang], 'name');
+        }
+    }
+
+
     $tasklisttask->statement_format = $task->statement_format;
     $tasklisttask->name             = $task->name;
     $tasklisttask->letter           = $task->letter;
@@ -68,6 +118,7 @@ foreach ($contest->tasks as $task) {
 
     $tasklisttask->statement_format_is_html =
         (strtoupper($tasklisttask->statement_format) == 'HTML');
+
 
     $showsubmitsspamwarning = ($tasklist->recentsubmitsbacs > 40);
     $showsubmitsspampenalty = ($tasklist->recentsubmitsbacs > 50);
