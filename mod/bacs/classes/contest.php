@@ -268,6 +268,7 @@ class contest {
         global $DB, $PAGE;
 
         require_once(dirname(dirname(__FILE__)) . '/submit_verdicts.php');
+        require_once(dirname(dirname(__FILE__)) . '/locale_utils.php');
 
         $this->specificmodebacs = $specificmode;
 
@@ -445,7 +446,9 @@ class contest {
             $task->task_order  = $tasktocontest->task_order;
             $task->test_points = $tasktocontest->test_points;
             $task->letter = chr(ord('A') + $task->task_order - 1);
-            $task->lettered_name = "$task->letter. $task->name";
+            
+            $task->lettered_name = "$task->letter. " . bacs_get_localized_name($task);
+            
             $task->is_missing = $taskismissing;
 
             $this->tasks[] = $task;
@@ -498,12 +501,14 @@ class contest {
         $task->id = 0;
         $task->task_id = $taskid;
         $task->name = "[" . get_string('uppercasetasknotfound', 'mod_bacs') . ", ID = $taskid]";
+        $task->names = [];
         $task->time_limit_millis = 0;
         $task->memory_limit_bytes = 0;
         $task->count_tests = 0;
         $task->count_pretests = 0;
         $task->test_points = "";
         $task->statement_url = "";
+        $task->statement_urls = [];
         $task->author = "";
         $task->revision = "";
         $task->statement_format = "";
@@ -916,7 +921,7 @@ class contest {
         $contestheader = new contest_header();
 
         $contestheader->coursemoduleidbacs   = $this->coursemodule->id;
-        $contestheader->contestnamebacs      = $this->bacs->name;
+        $contestheader->contestnamebacs      = format_string($this->bacs->name, true, ['filter' => true]);
         $contestheader->usercapabilitiesbacs = $this->usercapabilitiesbacs;
 
         $contestheader->isolateparticipantsbacs = $this->isolateparticipantsbacs;
@@ -954,7 +959,7 @@ class contest {
         $contestnavmenu = new contest_nav_menu();
 
         $contestnavmenu->coursemoduleidbacs    = $this->coursemodule->id;
-        $contestnavmenu->contestname       = $this->bacs->name;
+        $contestnavmenu->contestname       = format_string($this->bacs->name, true, ['filter' => true]);
         $contestnavmenu->usercapabilitiesbacs  = $this->usercapabilitiesbacs;
 
         $contestnavmenu->conteststatusbacs     = $contestheader->conteststatusbacs;
@@ -979,4 +984,5 @@ class contest {
 
         print $this->bacsoutput->render($contestnavmenu);
     }
+
 }

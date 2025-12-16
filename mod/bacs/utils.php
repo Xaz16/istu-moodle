@@ -23,10 +23,24 @@
  */
 
 /**
+ * Elo rating calculation constants for difficulty analysis
+ */
+if (!defined('BACS_ELO_BASE_RATING')) {
+    define('BACS_ELO_BASE_RATING', 1200);
+}
+if (!defined('BACS_ELO_LOG_SCALE_FACTOR')) {
+    define('BACS_ELO_LOG_SCALE_FACTOR', 500);
+}
+if (!defined('BACS_ELO_K_FACTOR')) {
+    define('BACS_ELO_K_FACTOR', 16);
+}
+
+/**
  * Class status_contest
  * @package mod_bacs
  */
-class status_contest {
+class status_contest
+{
     /**
      * @var mixed
      */
@@ -51,17 +65,19 @@ class status_contest {
     /**
      *
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
      * This function
      * @return void
      */
-    public function bacs_set() {
+    public function bacs_set()
+    {
         global $bacs;
-        $starttime = (int)$bacs->starttime;
-        $endtime = (int)$bacs->endtime;
+        $starttime = (int) $bacs->starttime;
+        $endtime = (int) $bacs->endtime;
 
         if ($endtime < $starttime) {
             $endtime = $starttime;
@@ -94,7 +110,8 @@ class status_contest {
      * This function
      * @return int|mixed
      */
-    public function bacs_get_status() {
+    public function bacs_get_status()
+    {
         return $this->status;
     }
 
@@ -103,7 +120,8 @@ class status_contest {
      * @return lang_string|string
      * @throws coding_exception
      */
-    public function bacs_get_statustext() {
+    public function bacs_get_statustext()
+    {
         switch ($this->status) {
             case -1:
                 $statustext = get_string('statusnotstarted', 'mod_bacs');
@@ -128,9 +146,10 @@ class status_contest {
      * @return string
      * @throws coding_exception
      */
-    public function bacs_get_fullstatusstring() {
+    public function bacs_get_fullstatusstring()
+    {
         return get_string('time', 'mod_bacs') .
-            ': <b>' . (int)$this->runtime . '</b> / <b>' . (int)$this->tottime . '</b>. ' .
+            ': <b>' . (int) $this->runtime . '</b> / <b>' . (int) $this->tottime . '</b>. ' .
             get_string('status', 'mod_bacs') .
             ': <b>' . $this->bacs_get_statustext() . '</b>.<br>';
     }
@@ -139,7 +158,8 @@ class status_contest {
      * This function
      * @return int|mixed
      */
-    public function bacs_get_endtime() {
+    public function bacs_get_endtime()
+    {
         return $this->endtime;
     }
 }
@@ -148,7 +168,8 @@ class status_contest {
  * This function
  * @return array|array[]
  */
-function bacs_get_my_groups() {
+function bacs_get_my_groups()
+{
     $mygroups = groups_get_my_groups();
     $group = [[]];
     foreach ($mygroups as $msg) {
@@ -165,7 +186,8 @@ function bacs_get_my_groups() {
  * @throws coding_exception
  * @throws dml_exception
  */
-function bacs_menu($link) {
+function bacs_menu($link)
+{
     global $cm, $DB, $USER, $student;
     if (is_null($link) || $link == "") {
         $link = 'view';
@@ -190,17 +212,17 @@ function bacs_menu($link) {
     $msg = '<ul class="nav nav-tabs">';
     foreach ($menuitems as $menuitemid => $menuitem) {
         $msg .= '<li class="nav-item">';
-            $msg .= '<a class="nav-link ';
-            $msg .= ($menuitemid == $link ? 'active' : '');
-            $msg .= '" href="' . $menuitemid . '.php?id=' . $cm->id . '">' . $menuitem . '</a>';
+        $msg .= '<a class="nav-link ';
+        $msg .= ($menuitemid == $link ? 'active' : '');
+        $msg .= '" href="' . $menuitemid . '.php?id=' . $cm->id . '">' . $menuitem . '</a>';
         $msg .= '</li>';
     }
     if ($link == 'anothers_results') {
         $msg .= '<li class="nav-item"><a class="nav-link active" href=' .
-                '"results.php?id=' . $cm->id .
-                '&user_id=' . $customuserid . '">' .
-                '<i class="icon-eye-open"></i> ' . get_string('submitsfrom', 'mod_bacs') . ' ' .
-                $customuser->firstname . ' ' . $customuser->lastname . '</a></li>';
+            '"results.php?id=' . $cm->id .
+            '&user_id=' . $customuserid . '">' .
+            '<i class="icon-eye-open"></i> ' . get_string('submitsfrom', 'mod_bacs') . ' ' .
+            $customuser->firstname . ' ' . $customuser->lastname . '</a></li>';
     }
     $msg .= '</ul>';
     return $msg;
@@ -211,15 +233,16 @@ function bacs_menu($link) {
  * @return void
  * @throws coding_exception
  */
-function bacs_print_contest_title() {
+function bacs_print_contest_title()
+{
     global $bacs, $cm, $student;
 
     print "<table><tr>";
     print "<td><h1 class='d-inline-block'>$bacs->name</h1><br></td>";
     if (!$student) {
         print "<td><a href='/course/modedit.php?update=$cm->id&return=0&sr=0'>" .
-        "<i class='icon-cog'></i>" . get_string('settings', 'mod_bacs') .
-        "</a></td>";
+            "<i class='icon-cog'></i>" . get_string('settings', 'mod_bacs') .
+            "</a></td>";
     }
     print "</tr></table>";
 }
@@ -231,7 +254,8 @@ function bacs_print_contest_title() {
  * @return void
  * @throws dml_exception
  */
-function bacs_calculate_sumbit_points($submitid, $testpointsstring = null) {
+function bacs_calculate_sumbit_points($submitid, $testpointsstring = null)
+{
     global $DB;
 
     $submit = $DB->get_record('bacs_submits', ['id' => $submitid], '*', MUST_EXIST);
@@ -302,7 +326,8 @@ function bacs_calculate_sumbit_points($submitid, $testpointsstring = null) {
  * @param int $points
  * @return string
  */
-function bacs_default_test_string($testsamount, $pretestsamount, $points = 100) {
+function bacs_default_test_string($testsamount, $pretestsamount, $points = 100)
+{
     $pointspertest = [0];
     for ($i = 0; $i < $testsamount; $i++) {
         $pointspertest[] = 0;
@@ -327,7 +352,8 @@ function bacs_default_test_string($testsamount, $pretestsamount, $points = 100) 
  * @param string $url
  * @return void
  */
-function bacs_redirect_via_js($url) {
+function bacs_redirect_via_js($url)
+{
     print '<script type="text/javascript">
         window.location.href = "' . $url . '";
         </script>';
@@ -338,7 +364,8 @@ function bacs_redirect_via_js($url) {
  * @param string $verdict
  * @return string
  */
-function bacs_verdict_to_css_class($verdict) {
+function bacs_verdict_to_css_class($verdict)
+{
     $verdictclass = 'verdict-failed';
 
     if ($verdict == VERDICT_ACCEPTED) {
@@ -356,7 +383,8 @@ function bacs_verdict_to_css_class($verdict) {
  * This function
  * @return void
  */
-function bacs_load_get_string_for_js() {
+function bacs_load_get_string_for_js()
+{
     global $PAGE;
 }
 
@@ -366,7 +394,8 @@ function bacs_load_get_string_for_js() {
  * @return string
  * @throws coding_exception
  */
-function bacs_ace_theme_selector($url) {
+function bacs_ace_theme_selector($url)
+{
     $msg = "<script type='text/javascript'>
         function ace_theme_selector_change() {
             var selector = document.getElementById('ace_theme_selector');
@@ -427,4 +456,26 @@ function bacs_ace_theme_selector($url) {
     </div>';
 
     return $msg;
+}
+
+/**
+ * Calculates the probability that a user can solve a task based on Elo ratings.
+ * Uses the standard Elo formula: P = 1 / (1 + 10^((R_task - R_user) / 500))
+ * 
+ * @param float $R_task Task Elo rating
+ * @param float $R_user User Elo rating
+ * @return float Probability between 0 and 1
+ */
+function bacs_calculate_solve_probability(float $R_task, float $R_user): float
+{
+    return 1 / (1 + pow(10, ($R_task - $R_user) / BACS_ELO_LOG_SCALE_FACTOR));
+}
+
+function bacs_is_plugin_presented($plugin_name)
+{
+    $pluginmanager = \core_plugin_manager::instance();
+    $parsed_plugin_name_str = explode("_", $plugin_name);
+    $name = implode("_", array_slice($parsed_plugin_name_str, 1));
+    $plugins_by_type = $pluginmanager->get_present_plugins($parsed_plugin_name_str[0]);
+    return isset($plugins_by_type[$name]);
 }
