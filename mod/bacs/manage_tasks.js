@@ -47,12 +47,12 @@ function trl_add_task(task_id) {
     }
 
     // add task
-    const delete_task_button =
+    const delete_task_button = 
         '<a class="tm_ignore_move tm_action_menu_holder cursor-pointer" onclick="trl_delete_task(' + task_id + ')">' +
-        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
-        '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
-        '</svg> ' +
-        M.util.get_string('delete', 'bacs') +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">' +
+                '<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>' +
+            '</svg> ' +
+            M.util.get_string('delete', 'bacs') + 
         '</a>';
 
     const new_task_el = document.createElement("div");
@@ -61,8 +61,8 @@ function trl_add_task(task_id) {
         '<span class="tasks_reorder_list_idholder">' + task_id + '</span>' +
         task_name +
         '<span class="tasks_reorder_list_addinfo">' +
-        '<span class="tasks_reorder_list_idinfo">' + '  (id: ' + task_id + ')</span> ' +
-        delete_task_button +
+            '<span class="tasks_reorder_list_idinfo">' + '  (id: ' + task_id + ')</span> ' +
+            delete_task_button +
         '</span>';
     tasks_list.appendChild(new_task_el);
 
@@ -89,18 +89,6 @@ function trl_delete_task(id) {
 function trl_update() {
     trl_update_sending_data();
     test_editor_update_options();
-
-    // Auto-update difficulty chart if it's visible
-    if (typeof window.bacsUpdateDifficultyChart === 'function') {
-        console.log('trl_update: calling bacsUpdateDifficultyChart');
-        // Small delay to ensure DOM is updated
-        setTimeout(function () {
-            console.log('trl_update: executing bacsUpdateDifficultyChart after delay');
-            window.bacsUpdateDifficultyChart();
-        }, 200);
-    } else {
-        console.log('trl_update: bacsUpdateDifficultyChart function not found');
-    }
 }
 
 function trl_update_sending_data() {
@@ -124,6 +112,11 @@ function trl_update_sending_data() {
     task_id_list_holder.setAttribute("value", task_id_list);
     const task_tests_list_holder = document.getElementsByName("contest_task_test_points")[0];
     task_tests_list_holder.setAttribute("value", task_tests_list);
+
+    // Update difficulty analysis chart if available
+    if (typeof window.bacsUpdateDifficultyChart === 'function') {
+        window.bacsUpdateDifficultyChart();
+    }
 }
 
 function trl_update_event(evt) {

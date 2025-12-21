@@ -168,8 +168,7 @@ class status_contest
  * This function
  * @return array|array[]
  */
-function bacs_get_my_groups()
-{
+function bacs_get_my_groups() {
     $mygroups = groups_get_my_groups();
     $group = [[]];
     foreach ($mygroups as $msg) {
@@ -186,8 +185,7 @@ function bacs_get_my_groups()
  * @throws coding_exception
  * @throws dml_exception
  */
-function bacs_menu($link)
-{
+function bacs_menu($link) {
     global $cm, $DB, $USER, $student;
     if (is_null($link) || $link == "") {
         $link = 'view';
@@ -212,17 +210,17 @@ function bacs_menu($link)
     $msg = '<ul class="nav nav-tabs">';
     foreach ($menuitems as $menuitemid => $menuitem) {
         $msg .= '<li class="nav-item">';
-        $msg .= '<a class="nav-link ';
-        $msg .= ($menuitemid == $link ? 'active' : '');
-        $msg .= '" href="' . $menuitemid . '.php?id=' . $cm->id . '">' . $menuitem . '</a>';
+            $msg .= '<a class="nav-link ';
+            $msg .= ($menuitemid == $link ? 'active' : '');
+            $msg .= '" href="' . $menuitemid . '.php?id=' . $cm->id . '">' . $menuitem . '</a>';
         $msg .= '</li>';
     }
     if ($link == 'anothers_results') {
         $msg .= '<li class="nav-item"><a class="nav-link active" href=' .
-            '"results.php?id=' . $cm->id .
-            '&user_id=' . $customuserid . '">' .
-            '<i class="icon-eye-open"></i> ' . get_string('submitsfrom', 'mod_bacs') . ' ' .
-            $customuser->firstname . ' ' . $customuser->lastname . '</a></li>';
+                '"results.php?id=' . $cm->id .
+                '&user_id=' . $customuserid . '">' .
+                '<i class="icon-eye-open"></i> ' . get_string('submitsfrom', 'mod_bacs') . ' ' .
+                $customuser->firstname . ' ' . $customuser->lastname . '</a></li>';
     }
     $msg .= '</ul>';
     return $msg;
@@ -233,16 +231,15 @@ function bacs_menu($link)
  * @return void
  * @throws coding_exception
  */
-function bacs_print_contest_title()
-{
+function bacs_print_contest_title() {
     global $bacs, $cm, $student;
 
     print "<table><tr>";
     print "<td><h1 class='d-inline-block'>$bacs->name</h1><br></td>";
     if (!$student) {
         print "<td><a href='/course/modedit.php?update=$cm->id&return=0&sr=0'>" .
-            "<i class='icon-cog'></i>" . get_string('settings', 'mod_bacs') .
-            "</a></td>";
+        "<i class='icon-cog'></i>" . get_string('settings', 'mod_bacs') .
+        "</a></td>";
     }
     print "</tr></table>";
 }
@@ -254,8 +251,7 @@ function bacs_print_contest_title()
  * @return void
  * @throws dml_exception
  */
-function bacs_calculate_sumbit_points($submitid, $testpointsstring = null)
-{
+function bacs_calculate_sumbit_points($submitid, $testpointsstring = null) {
     global $DB;
 
     $submit = $DB->get_record('bacs_submits', ['id' => $submitid], '*', MUST_EXIST);
@@ -326,8 +322,7 @@ function bacs_calculate_sumbit_points($submitid, $testpointsstring = null)
  * @param int $points
  * @return string
  */
-function bacs_default_test_string($testsamount, $pretestsamount, $points = 100)
-{
+function bacs_default_test_string($testsamount, $pretestsamount, $points = 100) {
     $pointspertest = [0];
     for ($i = 0; $i < $testsamount; $i++) {
         $pointspertest[] = 0;
@@ -352,8 +347,7 @@ function bacs_default_test_string($testsamount, $pretestsamount, $points = 100)
  * @param string $url
  * @return void
  */
-function bacs_redirect_via_js($url)
-{
+function bacs_redirect_via_js($url) {
     print '<script type="text/javascript">
         window.location.href = "' . $url . '";
         </script>';
@@ -364,8 +358,7 @@ function bacs_redirect_via_js($url)
  * @param string $verdict
  * @return string
  */
-function bacs_verdict_to_css_class($verdict)
-{
+function bacs_verdict_to_css_class($verdict) {
     $verdictclass = 'verdict-failed';
 
     if ($verdict == VERDICT_ACCEPTED) {
@@ -383,8 +376,7 @@ function bacs_verdict_to_css_class($verdict)
  * This function
  * @return void
  */
-function bacs_load_get_string_for_js()
-{
+function bacs_load_get_string_for_js() {
     global $PAGE;
 }
 
@@ -394,8 +386,7 @@ function bacs_load_get_string_for_js()
  * @return string
  * @throws coding_exception
  */
-function bacs_ace_theme_selector($url)
-{
+function bacs_ace_theme_selector($url) {
     $msg = "<script type='text/javascript'>
         function ace_theme_selector_change() {
             var selector = document.getElementById('ace_theme_selector');

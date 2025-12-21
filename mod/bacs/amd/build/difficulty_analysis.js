@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notification', 'core/chartjs'], function ($, Ajax, Notification, Chart) {
+define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notification', 'core/chartjs'], function($, Ajax, Notification, Chart) {
     let chartInstance = null;
     let currentCmid = null;
     let strings = {
@@ -39,7 +39,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
     function collectTaskIds() {
         const tasksList = document.getElementById('tasks_reorder_list');
         const taskIds = [];
-
+        
         if (tasksList && tasksList.children.length > 0) {
             for (let i = 0; i < tasksList.children.length; i++) {
                 const taskElement = tasksList.children[i];
@@ -48,10 +48,10 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
                 if (taskElement.firstElementChild) {
                     taskId = taskElement.firstElementChild.innerHTML || taskElement.firstElementChild.textContent;
                 } else if (taskElement.querySelector('.tasks_reorder_list_idholder')) {
-                    taskId = taskElement.querySelector('.tasks_reorder_list_idholder').innerHTML ||
-                        taskElement.querySelector('.tasks_reorder_list_idholder').textContent;
+                    taskId = taskElement.querySelector('.tasks_reorder_list_idholder').innerHTML || 
+                             taskElement.querySelector('.tasks_reorder_list_idholder').textContent;
                 }
-
+                
                 if (taskId) {
                     // Trim whitespace and convert to number
                     taskId = parseInt(taskId.toString().trim(), 10);
@@ -61,7 +61,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
                 }
             }
         }
-
+        
         return taskIds;
     }
 
@@ -83,22 +83,22 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
         // Check multiple ways to determine visibility
         const resultElement = result[0];
         let isVisible = false;
-
+        
         if (resultElement) {
             const style = window.getComputedStyle(resultElement);
             const isDisplayed = style.display !== 'none';
             const isNotHidden = style.visibility !== 'hidden';
             const hasOffsetParent = resultElement.offsetParent !== null;
             const jqueryVisible = result.is(':visible');
-
+            
             // Element is visible if it's displayed, not hidden, and has offsetParent (or is body/html)
             isVisible = isDisplayed && isNotHidden && (hasOffsetParent || resultElement === document.body || resultElement === document.documentElement);
-
+            
             // Also check jQuery's :visible as fallback
             if (!isVisible && jqueryVisible) {
                 isVisible = true;
             }
-
+            
             console.log('bacsUpdateDifficultyChart: visibility check', {
                 isDisplayed: isDisplayed,
                 isNotHidden: isNotHidden,
@@ -151,7 +151,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
             },
             traditional: false,
             dataType: 'json',
-            success: function (response) {
+            success: function(response) {
                 loader.hide();
 
                 if (response.success) {
@@ -165,7 +165,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
                     }
                 }
             },
-            error: function (xhr, status, error) {
+            error: function(xhr, status, error) {
                 loader.hide();
                 if (!silent) {
                     Notification.addNotification({
@@ -178,7 +178,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
     }
 
     return {
-        init: function (cmid, notasksselectedText, studentsCanSolveText, idealCurveText, numberOfStudentsText, tasksText) {
+        init: function(cmid, notasksselectedText, studentsCanSolveText, idealCurveText, numberOfStudentsText, tasksText) {
             // Store localized strings
             strings.notasksselected = notasksselectedText || 'No tasks selected. Please add tasks to the contest first.';
             strings.students_can_solve = studentsCanSolveText || 'Students who can solve the task';
@@ -186,13 +186,13 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
             strings.number_of_students = numberOfStudentsText || 'Number of students';
             strings.tasks = tasksText || 'Tasks';
             currentCmid = cmid;
-
+            
             const button = $('#bacs-difficulty-analysis-btn');
             const loader = $('#bacs-difficulty-analysis-loader');
             const result = $('#bacs-difficulty-analysis-result');
             const canvas = $('#bacs-difficulty-chart');
 
-            button.on('click', function () {
+            button.on('click', function() {
                 // Show loader, hide result
                 loader.show();
                 result.hide();
@@ -227,7 +227,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
                     },
                     traditional: false,
                     dataType: 'json',
-                    success: function (response) {
+                    success: function(response) {
                         loader.hide();
                         button.prop('disabled', false);
 
@@ -242,7 +242,7 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
                             });
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         loader.hide();
                         button.prop('disabled', false);
                         Notification.addNotification({
@@ -254,11 +254,11 @@ define('mod_bacs/difficulty_analysis', ['jquery', 'core/ajax', 'core/notificatio
             });
 
             // Export update function to global scope for use by manage_tasks.js
-            window.bacsUpdateDifficultyChart = function () {
+            window.bacsUpdateDifficultyChart = function() {
                 console.log('window.bacsUpdateDifficultyChart called');
                 updateChart(true); // Silent update (no loader/errors)
             };
-
+            
             // Also make it available immediately
             console.log('bacs difficulty_analysis module initialized, cmid:', cmid);
         }
